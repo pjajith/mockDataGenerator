@@ -5,6 +5,7 @@ const names = require('unique-names-generator').names;
 const starWars=require('unique-names-generator').starWars;
 const User = require('./models/User');
 const Product=require('./models/Product');
+const Payment=require('./models/Payment');
 const bcrypt =require('bcrypt');
 
 const connect = mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
@@ -106,16 +107,72 @@ function ReferenceProductUser(){
     })
 }
 
-function PaymentData(){
+async function PaymentData (){
     console.log("Payments")
-}
+    Payments=[];
+    const productList= await Product.find({});
+    User.find({role:"customer"},async (err,docs)=>{
+        docs.forEach(async (user)=>{
+            let times=Math.floor(Math.random()*3+2);
+            for (let index = 0; index < times; index++) {
+                let items=Math.floor(Math.random()*5+1);
+                let dateofPurchase = 1619333903714
+                let userDetails ={
+                    id:user._id,
+                    name:user.name,
+                    email:user.email,
+                }
+                let products=[];
+                let amount=0;
+                for (let index = 0; index < items; index++) {
+                    let rindex=Math.floor(Math.random()*productList.length);
+                    products.push({
+                        name: productList[rindex].title,
+                        id: productList[rindex]._id,
+                        price: productList[rindex].price,
+                        quantity: 1,
+                        paymentId: "PAYID-MCCRF7Q5YV12107YB160402R",
+                        dateofPurchase: dateofPurchase,
+                        
+                    })
+                    amount+=productList[rindex].price;
+                }
+                payment={
+                    user: [userDetails],
+                    product: products,
+                    createdAt: "2021-04-25T06:58:23.750+00:00",
+                    updatedAt: "2021-04-25T06:58:23.750+00:00",
+                    productPrice: amount,
+                }
+                Payments.push(payment);
+                for (let index = 0; index < products.length; index++) {
+                    await Product.findByIdAndUpdate(products[index].id,{ $inc:{ sold: 1}},(err,res)=>{
+                        if(err)
+                            console.log(err)
+                    })
+                }
+            }
 
+        })
+        Payment.insertMany(Payments)
+        .then(function(){
+            console.log("PaymentData inserted")  
+        }).catch(function(error){
+            console.log(error)      
+        });
+
+    })
+}
+function final(){
+    mongoose.connection.close();
+}
 
 //Call Functions
 UserData();
 setTimeout(ProductData,5000);
 setTimeout(ReferenceProductUser,15000);
 setTimeout(PaymentData,30000);
+setTimeout(Final,80000);
 
 
 
