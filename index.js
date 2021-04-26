@@ -137,12 +137,13 @@ async function PaymentData (){
                     })
                     amount+=productList[rindex].price;
                 }
-                let rdate=Math.floor(Math.random()*30+1)
+                let rdate=Math.floor(Math.random()*29+2)
+                let DatePurchased=new Date(2021,3,rdate);
                 payment={
                     user: [userDetails],
                     product: products,
-                    createdAt: "2021-04-25T06:58:23.750+00:00",
-                    updatedAt: "2021-04-25T06:58:23.750+00:00",
+                    createdAt: DatePurchased.toISOString(),
+                    updatedAt: DatePurchased.toISOString(),
                     productPrice: amount,
                 }
                 Payments.push(payment);
