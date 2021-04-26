@@ -113,9 +113,9 @@ async function PaymentData (){
     const productList= await Product.find({});
     User.find({role:"customer"},async (err,docs)=>{
         docs.forEach(async (user)=>{
-            let times=Math.floor(Math.random()*3+2);
+            let times=Math.floor(Math.random()*20+5);
             for (let index = 0; index < times; index++) {
-                let items=Math.floor(Math.random()*5+1);
+                let items=Math.floor(Math.random()*10+5);
                 let dateofPurchase = 1619333903714
                 let userDetails ={
                     id:user._id,
@@ -137,6 +137,7 @@ async function PaymentData (){
                     })
                     amount+=productList[rindex].price;
                 }
+                let rdate=Math.floor(Math.random()*30+1)
                 payment={
                     user: [userDetails],
                     product: products,
@@ -163,16 +164,14 @@ async function PaymentData (){
 
     })
 }
-function final(){
-    mongoose.connection.close();
-}
+
 
 //Call Functions
 UserData();
 setTimeout(ProductData,5000);
 setTimeout(ReferenceProductUser,15000);
 setTimeout(PaymentData,30000);
-setTimeout(Final,80000);
+
 
 
 
