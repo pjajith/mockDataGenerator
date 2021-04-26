@@ -18,17 +18,16 @@ const connect = mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true,
 function UserData(){
     Users=[];
     role=['customer','designer'];
-    for (let index = 0; index < 10; index++) {
+    for (let index = 0; index < 200; index++) {
         const name = ung.uniqueNamesGenerator({dictionaries: [names]});
         const lname = ung.uniqueNamesGenerator({dictionaries: [names]});
-        const hash = bcrypt.hashSync(name+"@123",1);
+        const hash = bcrypt.hashSync(name+"@123",10);
         let user={
         name : name,
         lastname : lname,
         email: name+"@gmail.com",
         password: hash,
-        //role: role[Math.floor(Math.random()*2)],
-        role: "designer",
+        role: role[Math.floor(Math.random()*2)],
         balance: Math.floor(Math.random()*5000+1000),
         }
         Users.push(user);
@@ -49,7 +48,7 @@ function ProductData(){
     let Products=[];
     User.find({role:"designer"},(err,docs)=>{
         docs.forEach(user=>{
-            let size = Math.floor(Math.random()*5+5);
+            let size = Math.floor(Math.random()*5+1);
             for (let index = 0; index < size; index++) {
                 const url="https://picsum.photos/id/"+(imageNum)+"/1080/720";
                 imageNum+=1;
@@ -76,8 +75,8 @@ function ProductData(){
 function ReferenceProductUser(){
     console.log("Referencing")
     References=[];
-    Product.find({},(err,docs)=>{
-        docs.forEach(product=>{
+    Product.find({},async (err,docs)=>{
+        docs.forEach((product)=>{
             let found=false;
             for (let index = 0; index < References.length; index++) {
                 if(References[index].uid.equals(product.writer)){
@@ -99,23 +98,24 @@ function ReferenceProductUser(){
             }
         })
         for (let index = 0; index < References.length; index++) {
-            console.log(References[index].pid)
-            User.findOneAndUpdate({_id:References[index].uid},{products: References[index].pid},(err,docs)=>{
+            await User.findOneAndUpdate({_id:References[index].uid},{products: References[index].pid},(err,docs)=>{
                 if(err)
                     console.log(err)
-                else
-                    console.log(docs)
             });
         }
     })
 }
 
+function PaymentData(){
+    console.log("Payments")
+}
 
 
 //Call Functions
 UserData();
 setTimeout(ProductData,5000);
-setTimeout(ReferenceProductUser,10000);
+setTimeout(ReferenceProductUser,15000);
+setTimeout(PaymentData,30000);
 
 
 
